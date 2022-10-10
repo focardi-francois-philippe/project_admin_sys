@@ -1,0 +1,33 @@
+#!/bin/bash
+
+RED_COLOR="\033[1;31m"
+BLUE_COLOR="\033[1;34m"
+GREEN_COLOR="\033[1;32m"
+NO_COLOR="\033[0m"
+
+help () {
+    echo "Generate your website with gensite 🔥"
+    echo
+    echo -e "${GREEN_COLOR}Available commands:${NO_COLOR}"
+    echo -e "\t${BLUE_COLOR}init | i${NO_COLOR}     Init project 🎉"
+    echo
+    echo "Options:"
+    echo -e "\t-h, --help    Display help for the given command. When no command is given display help for the list command."
+    echo
+}
+
+case $1 in
+
+    "-h" | "--help" | "")
+        help;
+        ;;
+
+    "i" | "init")
+        ./init.sh $*;
+        ;;
+
+    *)
+        echo -e "${RED_COLOR}The command $1 does not exist.${NO_COLOR}";
+        ;;
+
+esac
