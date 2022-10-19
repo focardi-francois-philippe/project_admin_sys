@@ -9,7 +9,8 @@ help () {
     echo "Generate your website with gensite 🔥"
     echo
     echo -e "${GREEN_COLOR}Available commands:${NO_COLOR}"
-    echo -e "\t${BLUE_COLOR}init | i${NO_COLOR}     Init project 🎉"
+    echo -e "\t${BLUE_COLOR}init  | i${NO_COLOR}    Init project 🎉"
+    echo -e "\t${BLUE_COLOR}image | img${NO_COLOR}  Add images to project 🏞"
     echo
     echo "Options:"
     echo -e "\t-h, --help    Display help for the given command. When no command is given display help for the list command."
@@ -24,6 +25,10 @@ case $1 in
 
     "i" | "init")
         ./init.sh $*;
+        ;;
+
+    "img" | "image")
+        ./images.sh $*;
         ;;
 
     *)

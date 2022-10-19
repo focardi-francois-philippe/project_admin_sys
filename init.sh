@@ -22,6 +22,7 @@ init_project () {
 
     echo "Initialising project here : $project_path"
     mkdir $project_path
+    mkdir $project_path/images
 }
 
 if [ $# -le 1 ]; # Not enouth params
