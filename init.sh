@@ -22,6 +22,9 @@ init_project () {
 
     echo "Initialising project here : $project_path"
     mkdir $project_path
+    touch "$project_path/.gensite"
+    echo "Project Name : ${project_name}" >> $project_path/.gensite
+    echo "Project Path : ${project_path}" >> $project_path/.gensite
 }
 
 if [ $# -le 1 ]; # Not enouth params
