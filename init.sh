@@ -25,6 +25,11 @@ init_project () {
     touch "$project_path/.gensite"
     echo "Project Name : ${project_name}" >> $project_path/.gensite
     echo "Project Path : ${project_path}" >> $project_path/.gensite
+
+    # Pull template
+    curl https://raw.githubusercontent.com/malo2b/project_admin_sys_template/master/index.html >> $project_path/index.html
+    curl https://raw.githubusercontent.com/malo2b/project_admin_sys_template/master/style.css >> $project_path/style.css
+    curl https://raw.githubusercontent.com/malo2b/project_admin_sys_template/master/script.js >> $project_path/script.js
 }
 
 if [ $# -le 1 ]; # Not enouth params
