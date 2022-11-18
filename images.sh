@@ -31,6 +31,7 @@ add () {
     done
 }
 
+
 if [ $# -le 1 ]; # Not enouth params
     then
         help;
