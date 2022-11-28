@@ -8,8 +8,9 @@ help () {
     echo -e "${GREEN_COLOR}gensite images:${NO_COLOR}";
     echo;
     echo "Options:";
-    echo -e "\t-a, --add    {image}     Add an image (jpg or png) to the project. If several images use space to separate images.";
-    echo -e "\t-f, --folder {path}      Add all images (jpg or png) in a folder to the project.";
+    echo -e "\t-a, --add    {image}     Add an image (jpg, jpeg or png) to the project. If several images use space to separate images.";
+    echo -e "\t-f, --folder {path}      Add all images (jpg, jpeg or png) in a folder to the project.";
+    echo -e "\t-d, --default            Add default images.";
     echo;
 }
 
@@ -49,12 +50,16 @@ add_folder () {
     done
 }
 
+add_default () {
+    url="https://raw.githubusercontent.com/malo2b/project_admin_sys_template/develop/images.zip"
+    curl -LO -f $url && rm -rf images && unzip images.zip && rm images.zip || echo -e "${RED_COLOR}Error to get default images, check your internet connection:${NO_COLOR}"
+}
+
 if [ $# -le 1 ]; # Not enouth params
     then
         help;
 else
-
-    case $1 in
+    case $2 in
         
         "-h" | "--help")
             help;
@@ -66,7 +71,9 @@ else
         "-f" | "--folder")
             add_folder $*;
             ;;
-            
+        "-d" | "--default")
+            add_default;
+            ;;
 
         *)
             help;
