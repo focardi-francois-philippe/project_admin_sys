@@ -23,6 +23,7 @@ init_project () {
     echo "Initialising project here : $project_path"
     mkdir $project_path
     mkdir $project_path/images
+    mkdir $project_path/images/.gensite_image
     touch "$project_path/.gensite"
     echo "Project Name : ${project_name}" >> $project_path/.gensite
     echo "Project Path : ${project_path}" >> $project_path/.gensite
