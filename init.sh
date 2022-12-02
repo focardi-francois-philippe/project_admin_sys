@@ -23,8 +23,19 @@ init_project () {
     echo "Initialising project here : $project_path"
     mkdir $project_path
     touch "$project_path/.gensite"
-    echo "Project Name : ${project_name}" >> $project_path/.gensite
-    echo "Project Path : ${project_path}" >> $project_path/.gensite
+    echo "{project_name}:${project_name}" >> $project_path/.gensite
+    echo "{project_path}:${project_path}" >> $project_path/.gensite
+
+    read -e -p "Enter Your Name [Default : Anonyme] : " user_name
+    user_name="${user_name:=Anonyme}"
+    echo "{user_name}:${user_name}" >> $project_path/.gensite
+
+    read -e -p "Enter Your Pseudonyme [Default : anonyme] : " pseudonyme
+    pseudonyme="${pseudonyme:=anonyme}"
+    echo "{pseudonyme}:${pseudonyme}" >> $project_path/.gensite
+
+    echo -e "${BLUE_COLOR}Your project is init here 🎉 : ${project_path}${NO_COLOR}";
+
 }
 
 if [ $# -le 1 ]; # Not enouth params
