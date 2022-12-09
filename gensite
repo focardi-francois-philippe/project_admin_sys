@@ -33,7 +33,6 @@ verify_project_not_init() {
 
 init () {
     # Function for init command
-    verify_project_not_init
 
     help () {
         echo -e "${GREEN_COLOR}gensite init:${NO_COLOR}";
@@ -45,6 +44,8 @@ init () {
 
     init_project () {
         # Main init project function
+        verify_project_not_init
+
         project_name=$2
         [[ -n $3 ]] && path="$3" || path="$(PWD)" # Affect default value to path if not specified
 
@@ -125,10 +126,10 @@ images () {
                 if [[ " ${ACCEPT_EXTENSION[*]} " =~ " ${extension} " ]]; then
                     cp $image ./images
                 else
-                    echo "Le fichier ${image} doit etre de type png ou jpg"
+                    echo "${file} can't be download, it sould be a png or jpg"
                 fi
             else
-                echo "Le fichier ${image} n'existe pas"
+                echo "The file ${image} doesn't exist"
             fi
         done
     }
@@ -144,11 +145,11 @@ images () {
                     if [[ " ${ACCEPT_EXTENSION[*]} " =~ " ${extension} " ]]; then
                         cp $file ./images
                     else
-                        echo "Le fichier ${file} n'est pas telecharge, il doit etre de type png ou jpg"
+                        echo "${file} can't be download, it sould be a png or jpg"
                     fi
                 done
             else
-                echo "${folder} n'est pas un dossier ou n'existe pas"
+                echo "${folder} is not a directory or doesn't exist"
             fi
         done
     }
