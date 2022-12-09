@@ -17,6 +17,154 @@ help () {
     echo
 }
 
+
+init () {
+
+    help () {
+        echo -e "${GREEN_COLOR}gensite init:${NO_COLOR}";
+        echo;
+        echo -e "\tgensite init {project_name} {path}";
+        echo -e "\t\t{path} : Optional (default path is current folder)";
+        echo
+    }
+
+    init_project () {
+        project_name=$2
+        [[ -n $3 ]] && path="$3" || path="$(PWD)" # Affect default value to path if not specified
+
+        project_path="${path}/${project_name}"
+
+        echo "Initialising project here : $project_path"
+        mkdir $project_path
+        mkdir $project_path/images
+        mkdir $project_path/images/.gensite_image
+        touch "$project_path/.gensite"
+        echo "{project_name}:${project_name}" >> $project_path/.gensite
+        echo "{project_path}:${project_path}" >> $project_path/.gensite
+
+        read -e -p "Enter Your Name [Default : Anonyme] : " user_name
+        user_name="${user_name:=Anonyme}"
+        echo "{user_name}:${user_name}" >> $project_path/.gensite
+
+        read -e -p "Enter Your Pseudonyme [Default : anonyme] : " pseudonyme
+        pseudonyme="${pseudonyme:=anonyme}"
+        echo "{pseudonyme}:${pseudonyme}" >> $project_path/.gensite
+
+        echo -e "${BLUE_COLOR}Your project is init here 🎉 : ${project_path}${NO_COLOR}";
+
+        echo "Project Name : ${project_name}" >> $project_path/.gensite
+        echo "Project Path : ${project_path}" >> $project_path/.gensite
+
+        # Pull template
+        curl https://raw.githubusercontent.com/malo2b/project_admin_sys_template/master/index.html >> $project_path/index.html
+        curl https://raw.githubusercontent.com/malo2b/project_admin_sys_template/master/style.css >> $project_path/style.css
+    }
+
+    if [ $# -le 1 ]; # Not enouth params
+        then
+            help;
+    elif
+        [ $# -ge 4 ]; # Too many params
+            then
+                echo -e "${RED_COLOR}[ERROR] Too many params !${NO_COLOR}\n";
+                help;
+    else
+        case $2 in
+
+            "-h" | "--help")
+                help;
+                ;;
+
+            *)
+                init_project $*;
+                ;;
+
+        esac
+    fi
+
+
+}
+
+images () {
+    help () {
+        echo -e "${GREEN_COLOR}gensite images:${NO_COLOR}";
+        echo;
+        echo "Options:";
+        echo -e "\t-a, --add    {image}     Add an image (jpg, jpeg or png) to the project. If several images use space to separate images.";
+        echo -e "\t-f, --folder {path}      Add all images (jpg, jpeg or png) in a folder to the project.";
+        echo -e "\t-d, --default            Add default images.";
+        echo;
+    }
+
+    add () {
+        for image in "${@:3}" # Iterate on images but not command args
+        do
+            if test -f $image;then
+                filename=$(basename -- "$image")
+                extension="${filename##*.}"
+                if [[ " ${ACCEPT_EXTENSION[*]} " =~ " ${extension} " ]]; then
+                    cp $image ./images
+                else
+                    echo "Le fichier ${image} doit etre de type png ou jpg"
+                fi
+            else
+                echo "Le fichier ${image} n'existe pas"
+            fi
+        done
+    }
+
+    add_folder () {
+        for folder in "${@:3}" # Iterate on images but not command args
+        do
+            if test -d $folder;then
+                for file in $folder*; do
+                    filename=$(basename -- "$file")
+                    extension="${filename##*.}"
+                    if [[ " ${ACCEPT_EXTENSION[*]} " =~ " ${extension} " ]]; then
+                        cp $file ./images
+                    else
+                        echo "Le fichier ${file} n'est pas telecharge, il doit etre de type png ou jpg"
+                    fi
+                done
+            else
+                echo "${folder} n'est pas un dossier ou n'existe pas"
+            fi
+        done
+    }
+
+    add_default () {
+        url="https://raw.githubusercontent.com/malo2b/project_admin_sys_template/develop/images.zip"
+        curl -LO -f $url && rm -rf images && unzip images.zip && rm images.zip || echo -e "${RED_COLOR}Error to get default images, check your internet connection:${NO_COLOR}"
+    }
+
+    if [ $# -le 1 ]; # Not enouth params
+        then
+            help;
+    else
+        case $2 in
+            "-h" | "--help")
+                help;
+                ;;
+
+            "-a" | "--add")
+                add $*;
+                ;;
+            "-f" | "--folder")
+                add_folder $*;
+                ;;
+            "-d" | "--default")
+                add_default;
+                ;;
+
+            *)
+                help;
+                ;;
+
+        esac
+    fi
+}
+
+
 case $1 in
 
     "-h" | "--help" | "")
@@ -24,11 +172,11 @@ case $1 in
         ;;
 
     "i" | "init")
-        ./init.sh $*;
+        init $*;
         ;;
 
     "img" | "image")
-        ./images.sh $*;
+        images $*;
         ;;
 
     *)
