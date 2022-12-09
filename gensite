@@ -17,8 +17,22 @@ help () {
     echo
 }
 
+verify_project_context () {
+    # Check if there is a .gensite file in current path
+    if (($(ls -la | grep "\.gensite" -c) != 1));
+    then echo -e "${RED_COLOR}[ERROR] Please be in a project folder or initialize one !${NO_COLOR}" && exit
+    fi
+}
+
+verify_project_not_init() {
+    # check if the project is not yet instantiated
+    if (($(ls -la | grep "\.gensite" -c) == 1));
+    then echo -e "${RED_COLOR}[ERROR] A project is already init in this folder !${NO_COLOR}" && exit
+    fi
+}
 
 init () {
+    verify_project_not_init
 
     help () {
         echo -e "${GREEN_COLOR}gensite init:${NO_COLOR}";
@@ -86,6 +100,8 @@ init () {
 }
 
 images () {
+    verify_project_context
+
     help () {
         echo -e "${GREEN_COLOR}gensite images:${NO_COLOR}";
         echo;
