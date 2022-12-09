@@ -32,6 +32,7 @@ verify_project_not_init() {
 }
 
 init () {
+    # Function for init command
     verify_project_not_init
 
     help () {
@@ -43,6 +44,7 @@ init () {
     }
 
     init_project () {
+        # Main init project function
         project_name=$2
         [[ -n $3 ]] && path="$3" || path="$(PWD)" # Affect default value to path if not specified
 
@@ -100,6 +102,7 @@ init () {
 }
 
 images () {
+    # Function for images command
     verify_project_context
 
     help () {
@@ -113,6 +116,7 @@ images () {
     }
 
     add () {
+        # Add an image to project
         for image in "${@:3}" # Iterate on images but not command args
         do
             if test -f $image;then
@@ -130,6 +134,7 @@ images () {
     }
 
     add_folder () {
+        # Add image folder in project
         for folder in "${@:3}" # Iterate on images but not command args
         do
             if test -d $folder;then
@@ -149,6 +154,7 @@ images () {
     }
 
     add_default () {
+        # Add default images to project
         url="https://raw.githubusercontent.com/malo2b/project_admin_sys_template/develop/images.zip"
         curl -LO -f $url && rm -rf images && unzip images.zip && rm images.zip || echo -e "${RED_COLOR}Error to get default images, check your internet connection:${NO_COLOR}"
     }
@@ -180,7 +186,7 @@ images () {
     fi
 }
 
-
+# CLI entry point
 case $1 in
 
     "-h" | "--help" | "")
