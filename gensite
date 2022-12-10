@@ -37,7 +37,7 @@ write_article()
     img_article=$( tail -n 1 .gensite | cut -d ":" -f 2 )
     user_name=$( grep "{user_name}:" .gensite | cut -d ":" -f 2 )
     pseudonyme=$( grep "{pseudonyme}:" .gensite | cut -d ":" -f 2 )
-    card_article="<div class=\"column\">\n\n<div class=\"card\">\n<div class=\"card-image\">\n\n<figure class=\"image is-4by3\">\n\n<img src=\"images/$img_article\" alt=\"Image Article 3\">\n\n </figure>\n </div>\n <div class=\"card-content\">\n <div class=\"media\">\n <div class=\"media-left\">\n <figure class=\"image is-48x48\">\n <img src=\"{{profile_picture}}\" alt=\"Profile Picture\">\n </figure>\n </div>\n <div class=\"media-content\">\n <p class=\"title is-4\">\n$user_name</p>\n <p class=\"subtitle is-6\">\n$pseudonyme</p>\n </div>\n </div>\n <div class=\"content\">\n Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nec iaculis mauris. <br>\n <!-- <time datetime=\"2016-1-1\">\n11:09 PM - 1 Jan 2016</time>\n -->\n </div>\n </div>\n </div>\n </div>\n <!--{{limite}}-->\n"
+    card_article="<div class=\"column\">\n\n<div class=\"card\">\n<div class=\"card-image\">\n\n<figure class=\"image is-4by3\">\n\n<img src=\"images/$img_article\" alt=\"Image Article 3\">\n\n </figure>\n </div>\n <div class=\"card-content\">\n <div class=\"media\">\n <div class=\"media-content\">\n <p class=\"title is-4\">\n$user_name</p>\n <p class=\"subtitle is-6\">\n$pseudonyme</p>\n </div>\n </div>\n <div class=\"content\">\n Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nec iaculis mauris. <br>\n <!-- <time datetime=\"2016-1-1\">\n11:09 PM - 1 Jan 2016</time>\n -->\n </div>\n </div>\n </div>\n </div>\n <!--{{limite}}-->\n"
     sed -i "s|$search_file|$card_article|g" index.html
 }
 
@@ -76,6 +76,8 @@ init () {
         read -e -p "Enter Your Pseudonyme [Default : anonyme] : " pseudonyme
         pseudonyme="${pseudonyme:=anonyme}"
         echo "{pseudonyme}:${pseudonyme}" >> $project_path/.gensite
+
+        
         
         echo -e "${BLUE_COLOR}Your project is init here 🎉 : ${project_path}${NO_COLOR}";
         
@@ -187,7 +189,6 @@ images () {
         identifiant_html=""
         while read -r line
             do
-                echo $line
                 identifiant_html=$( echo "$line" | cut -d "=" -f 1 )
                 name_img=$( echo "$line" | cut -d "=" -f 2 )
                 echo "{$identifiant_html}:$name_img" >> .gensite
