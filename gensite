@@ -37,7 +37,7 @@ write_article()
     img_article=$( tail -n 1 .gensite | cut -d ":" -f 2 )
     user_name=$( grep "{user_name}:" .gensite | cut -d ":" -f 2 )
     pseudonyme=$( grep "{pseudonyme}:" .gensite | cut -d ":" -f 2 )
-    card_article="<div class=\"column\">\n\n<div class=\"card\">\n<div class=\"card-image\">\n\n<figure class=\"image is-4by3\">\n\n<img src=\"images/$img_article\" alt=\"Image Article 3\">\n\n </figure>\n </div>\n <div class=\"card-content\">\n <div class=\"media\">\n <div class=\"media-content\">\n <p class=\"title is-4\">\n$user_name</p>\n <p class=\"subtitle is-6\">\n$pseudonyme</p>\n </div>\n </div>\n <div class=\"content\">\n Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nec iaculis mauris. <br>\n <!-- <time datetime=\"2016-1-1\">\n11:09 PM - 1 Jan 2016</time>\n -->\n </div>\n </div>\n </div>\n </div>\n <!--{{limite}}-->\n"
+    card_article="<div class=\"column\">\n\n<div class=\"card\">\n<div class=\"card-image\">\n\n<figure class=\"image is-4by3\">\n\n<img src=\"images/$img_article\">\n\n </figure>\n </div>\n <div class=\"card-content\">\n <div class=\"media\">\n <div class=\"media-content\">\n <p class=\"title is-4\">\n$user_name</p>\n <p class=\"subtitle is-6\">\n$pseudonyme</p>\n </div>\n </div>\n <div class=\"content\">\n Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nec iaculis mauris. <br>\n </div>\n </div>\n </div>\n </div>\n <!--{{limite}}-->\n"
     sed -i "s|$search_file|$card_article|g" index.html
 }
 
@@ -86,7 +86,6 @@ init () {
         curl https://raw.githubusercontent.com/malo2b/project_admin_sys_template/master/style.css >> $project_path/style.css
         cd $project_path
         sed -i "s|{{user_name}}|$user_name|g" index.html
-        ../gensite img -d
         main_image=$( grep "{main_image}:" .gensite | cut -d ":" -f 2 )
         sed -i "s|{{main_image}}|images/$main_image|g" index.html
         
@@ -192,9 +191,13 @@ images () {
                 identifiant_html=$( echo "$line" | cut -d "=" -f 1 )
                 name_img=$( echo "$line" | cut -d "=" -f 2 )
                 echo "{$identifiant_html}:$name_img" >> .gensite
-                write_article
+
+                if [ "$identifiant_html" != "main_image" ]; then
+                    write_article
+                fi
+                
             done < "$config_images_default"
-        #rm $config_images_default
+        rm $config_images_default
     }
     
     if [ $# -le 1 ]; # Not enouth params
