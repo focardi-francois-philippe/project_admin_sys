@@ -4,6 +4,7 @@ RED_COLOR="\033[1;31m"
 BLUE_COLOR="\033[1;34m"
 GREEN_COLOR="\033[1;32m"
 NO_COLOR="\033[0m"
+ACCEPT_EXTENSION=("png" "jpg" "jpeg")
 
 help () {
     echo "Generate your website with gensite 🔥"
@@ -33,7 +34,7 @@ verify_project_not_init() {
 
 init () {
     # Function for init command
-
+    
     help () {
         echo -e "${GREEN_COLOR}gensite init:${NO_COLOR}";
         echo;
@@ -41,68 +42,68 @@ init () {
         echo -e "\t\t{path} : Optional (default path is current folder)";
         echo
     }
-
+    
     init_project () {
         # Main init project function
         verify_project_not_init
-
+        
         project_name=$2
         [[ -n $3 ]] && path="$3" || path="$(PWD)" # Affect default value to path if not specified
-
+        
         project_path="${path}/${project_name}"
-
+        
         echo "Initialising project here : $project_path"
-        mkdir $project_path
-        mkdir $project_path/images
-        mkdir $project_path/images/.gensite_image
-        touch "$project_path/.gensite"
+        sudo mkdir $project_path
+        sudo mkdir $project_path/images
+        sudo touch "$project_path/.gensite"
+        sudo touch "$project_path/.compteur_img"
         echo "{project_name}:${project_name}" >> $project_path/.gensite
         echo "{project_path}:${project_path}" >> $project_path/.gensite
-
+        echo "4">>"$project_path/.compteur_img"
         read -e -p "Enter Your Name [Default : Anonyme] : " user_name
         user_name="${user_name:=Anonyme}"
         echo "{user_name}:${user_name}" >> $project_path/.gensite
-
+        
         read -e -p "Enter Your Pseudonyme [Default : anonyme] : " pseudonyme
         pseudonyme="${pseudonyme:=anonyme}"
         echo "{pseudonyme}:${pseudonyme}" >> $project_path/.gensite
-
+        
         echo -e "${BLUE_COLOR}Your project is init here 🎉 : ${project_path}${NO_COLOR}";
-
+        
         # Pull template
         curl https://raw.githubusercontent.com/malo2b/project_admin_sys_template/master/index.html >> $project_path/index.html
         curl https://raw.githubusercontent.com/malo2b/project_admin_sys_template/master/style.css >> $project_path/style.css
     }
-
+    
     if [ $# -le 1 ]; # Not enouth params
-        then
-            help;
+    then
+        help;
     elif
-        [ $# -ge 4 ]; # Too many params
-            then
-                echo -e "${RED_COLOR}[ERROR] Too many params !${NO_COLOR}\n";
-                help;
+    [ $# -ge 4 ]; # Too many params
+    then
+        echo -e "${RED_COLOR}[ERROR] Too many params !${NO_COLOR}\n";
+        help;
     else
         case $2 in
-
+            
             "-h" | "--help")
                 help;
-                ;;
-
+            ;;
+            
             *)
                 init_project $*;
-                ;;
-
+            ;;
+            
         esac
     fi
-
-
+    
+    
 }
 
 images () {
     # Function for images command
     verify_project_context
-
+    
     help () {
         echo -e "${GREEN_COLOR}gensite images:${NO_COLOR}";
         echo;
@@ -112,9 +113,10 @@ images () {
         echo -e "\t-d, --default            Add default images.";
         echo;
     }
-
+    
     add () {
         # Add an image to project
+        read -r compteur_article<.compteur_img
         for image in "${@:3}" # Iterate on images but not command args
         do
             if test -f $image;then
@@ -122,6 +124,8 @@ images () {
                 extension="${filename##*.}"
                 if [[ " ${ACCEPT_EXTENSION[*]} " =~ " ${extension} " ]]; then
                     cp $image ./images
+                    echo "{image_article_$compteur_article}:$filename">>.gensite
+                    ((compteur_article+=1))
                 else
                     echo "${file} can't be download, it sould be a png or jpg"
                 fi
@@ -129,10 +133,12 @@ images () {
                 echo "The file ${image} doesn't exist"
             fi
         done
+        echo $compteur_article>.compteur_img
     }
-
+    
     add_folder () {
         # Add image folder in project
+        read -r compteur_article<.compteur_img
         for folder in "${@:3}" # Iterate on images but not command args
         do
             if test -d $folder;then
@@ -141,6 +147,10 @@ images () {
                     extension="${filename##*.}"
                     if [[ " ${ACCEPT_EXTENSION[*]} " =~ " ${extension} " ]]; then
                         cp $file ./images
+                        echo "{image_article_$compteur_article}:$filename">>.gensite
+                        ((compteur_article+=1))
+                        
+                        
                     else
                         echo "${file} can't be download, it sould be a png or jpg"
                     fi
@@ -149,58 +159,69 @@ images () {
                 echo "${folder} is not a directory or doesn't exist"
             fi
         done
+        echo $compteur_article>.compteur_img
     }
-
+    
     add_default () {
         # Add default images to project
         url="https://raw.githubusercontent.com/malo2b/project_admin_sys_template/develop/images.zip"
         curl -LO -f $url && rm -rf images && unzip images.zip && rm images.zip || echo -e "${RED_COLOR}Error to get default images, check your internet connection:${NO_COLOR}"
+        input="images/.gensite_image"
+        name_img=""
+        identifiant_html=""
+        while read -r line
+            do
+                identifiant_html=$( echo "$line" | cut -d "=" -f 1 )
+                name_img=$( echo "$line" | cut -d "=" -f 2 )
+                echo "{$identifiant_html}:$name_img" >> .gensite
+            done < "$input"
+        #rm $input
     }
-
+    
     if [ $# -le 1 ]; # Not enouth params
-        then
-            help;
+    then
+        help;
     else
         case $2 in
             "-h" | "--help")
                 help;
-                ;;
-
+            ;;
+            
             "-a" | "--add")
                 add $*;
-                ;;
+            ;;
             "-f" | "--folder")
                 add_folder $*;
-                ;;
+            ;;
             "-d" | "--default")
                 add_default;
-                ;;
-
+            ;;
+            
             *)
                 help;
-                ;;
-
+            ;;
+            
         esac
     fi
 }
 
 # CLI entry point
 case $1 in
-
+    
     "-h" | "--help" | "")
         help;
-        ;;
-
+    ;;
+    
     "i" | "init")
         init $*;
-        ;;
-
+    ;;
+    
     "img" | "image")
         images $*;
-        ;;
-
+    ;;
+    
     *)
         echo -e "${RED_COLOR}The command $1 does not exist.${NO_COLOR}";
-        ;;
-
+    ;;
+    
 esac
