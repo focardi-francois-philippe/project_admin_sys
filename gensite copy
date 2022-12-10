@@ -37,7 +37,7 @@ write_article()
     img_article=$( tail -n 1 .gensite | cut -d ":" -f 2 )
     user_name=$( grep "{user_name}:" .gensite | cut -d ":" -f 2 )
     pseudonyme=$( grep "{pseudonyme}:" .gensite | cut -d ":" -f 2 )
-    card_article="<div class=\"column\">\n\n<div class=\"card\">\n<div class=\"card-image\">\n\n<figure class=\"image is-4by3\">\n\n<img src=\"images/$img_article\" alt=\"Image Article 3\">\n\n </figure>\n </div>\n <div class=\"card-content\">\n <div class=\"media\">\n <div class=\"media-left\">\n <figure class=\"image is-48x48\">\n <img src=\"{{profile_picture}}\" alt=\"Profile Picture\">\n </figure>\n </div>\n <div class=\"media-content\">\n <p class=\"title is-4\">\n$user_name</p>\n <p class=\"subtitle is-6\">\n$pseudonyme</p>\n </div>\n </div>\n <div class=\"content\">\n Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nec iaculis mauris. <br>\n <!-- <time datetime=\"2016-1-1\">\n11:09 PM - 1 Jan 2016</time>\n -->\n </div>\n </div>\n </div>\n </div>\n <!--{{limite}}-->\n"
+    card_article="<div class=\"column\">\n\n<div class=\"card\">\n\n<div class=\"card-image\">\n\n<figure class=\"image is-4by3\">\n\n<img src=\"images/$img_article\" alt=\"Image Article 3\">\n\n </figure>\n </div>\n <div class=\"card-content\">\n <div class=\"media\">\n <div class=\"media-left\">\n <figure class=\"image is-48x48\">\n <img src=\"{{profile_picture}}\" alt=\"Profile Picture\">\n </figure>\n </div>\n <div class=\"media-content\">\n <p class=\"title is-4\">\n$user_name</p>\n <p class=\"subtitle is-6\">\n$pseudonyme</p>\n </div>\n </div>\n <div class=\"content\">\n Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nec iaculis mauris. <br>\n <!-- <time datetime=\"2016-1-1\">\n11:09 PM - 1 Jan 2016</time>\n -->\n </div>\n </div>\n </div>\n </div>\n <!--{{limite}}-->\n"
     sed -i "s|$search_file|$card_article|g" index.html
 }
 
@@ -62,10 +62,10 @@ init () {
         project_path="${path}/${project_name}"
         
         echo "Initialising project here : $project_path"
-        mkdir $project_path
-        mkdir $project_path/images
-        touch "$project_path/.gensite"
-        touch "$project_path/.compteur_img"
+        sudo mkdir $project_path
+        sudo mkdir $project_path/images
+        sudo touch "$project_path/.gensite"
+        sudo touch "$project_path/.compteur_img"
         echo "{project_name}:${project_name}" >> $project_path/.gensite
         echo "{project_path}:${project_path}" >> $project_path/.gensite
         echo "4">>"$project_path/.compteur_img"
@@ -82,12 +82,6 @@ init () {
         # Pull template
         curl https://raw.githubusercontent.com/malo2b/project_admin_sys_template/master/index.html >> $project_path/index.html
         curl https://raw.githubusercontent.com/malo2b/project_admin_sys_template/master/style.css >> $project_path/style.css
-        cd $project_path
-        sed -i "s|{{user_name}}|$user_name|g" index.html
-        ../gensite img -d
-        main_image=$( grep "{main_image}:" .gensite | cut -d ":" -f 2 )
-        sed -i "s|{{main_image}}|images/$main_image|g" index.html
-        
     }
     
     if [ $# -le 1 ]; # Not enouth params
@@ -140,7 +134,7 @@ images () {
                 if [[ " ${ACCEPT_EXTENSION[*]} " =~ " ${extension} " ]]; then
                     cp $image ./images
                     echo "{image_article_$compteur_article}:$filename">>.gensite
-                    write_article
+                    write_article()
                     ((compteur_article+=1))
                     
                 else
@@ -165,8 +159,9 @@ images () {
                     if [[ " ${ACCEPT_EXTENSION[*]} " =~ " ${extension} " ]]; then
                         cp $file ./images
                         echo "{image_article_$compteur_article}:$filename">>.gensite
-                        write_article
+                        write_article()
                         ((compteur_article+=1))
+                        
                     else
                         echo "${file} can't be download, it sould be a png or jpg"
                     fi
@@ -180,20 +175,20 @@ images () {
     
     add_default () {
         # Add default images to project
-        url="https://raw.githubusercontent.com/malo2b/project_admin_sys_template/master/images.zip"
+        url="https://raw.githubusercontent.com/malo2b/project_admin_sys_template/develop/images.zip"
         curl -LO -f $url && rm -rf images && unzip images.zip && rm images.zip || echo -e "${RED_COLOR}Error to get default images, check your internet connection:${NO_COLOR}"
-        config_images_default="images/.gensite_image"
+        input="images/.gensite_image"
         name_img=""
         identifiant_html=""
         while read -r line
             do
-                echo $line
                 identifiant_html=$( echo "$line" | cut -d "=" -f 1 )
                 name_img=$( echo "$line" | cut -d "=" -f 2 )
                 echo "{$identifiant_html}:$name_img" >> .gensite
-                write_article
-            done < "$config_images_default"
-        #rm $config_images_default
+                write_article()
+                
+            done < "$input"
+        rm $input
     }
     
     if [ $# -le 1 ]; # Not enouth params
