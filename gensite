@@ -17,8 +17,22 @@ help () {
     echo
 }
 
+verify_project_context () {
+    # Check if there is a .gensite file in current path
+    if (($(ls -la | grep "\.gensite" -c) != 1));
+    then echo -e "${RED_COLOR}[ERROR] Please be in a project folder or initialize one !${NO_COLOR}" && exit
+    fi
+}
+
+verify_project_not_init() {
+    # check if the project is not yet instantiated
+    if (($(ls -la | grep "\.gensite" -c) == 1));
+    then echo -e "${RED_COLOR}[ERROR] A project is already init in this folder !${NO_COLOR}" && exit
+    fi
+}
 
 init () {
+    # Function for init command
 
     help () {
         echo -e "${GREEN_COLOR}gensite init:${NO_COLOR}";
@@ -29,6 +43,9 @@ init () {
     }
 
     init_project () {
+        # Main init project function
+        verify_project_not_init
+
         project_name=$2
         [[ -n $3 ]] && path="$3" || path="$(PWD)" # Affect default value to path if not specified
 
@@ -51,9 +68,6 @@ init () {
         echo "{pseudonyme}:${pseudonyme}" >> $project_path/.gensite
 
         echo -e "${BLUE_COLOR}Your project is init here 🎉 : ${project_path}${NO_COLOR}";
-
-        echo "Project Name : ${project_name}" >> $project_path/.gensite
-        echo "Project Path : ${project_path}" >> $project_path/.gensite
 
         # Pull template
         curl https://raw.githubusercontent.com/malo2b/project_admin_sys_template/master/index.html >> $project_path/index.html
@@ -86,6 +100,9 @@ init () {
 }
 
 images () {
+    # Function for images command
+    verify_project_context
+
     help () {
         echo -e "${GREEN_COLOR}gensite images:${NO_COLOR}";
         echo;
@@ -97,6 +114,7 @@ images () {
     }
 
     add () {
+        # Add an image to project
         for image in "${@:3}" # Iterate on images but not command args
         do
             if test -f $image;then
@@ -105,15 +123,16 @@ images () {
                 if [[ " ${ACCEPT_EXTENSION[*]} " =~ " ${extension} " ]]; then
                     cp $image ./images
                 else
-                    echo "Le fichier ${image} doit etre de type png ou jpg"
+                    echo "${file} can't be download, it sould be a png or jpg"
                 fi
             else
-                echo "Le fichier ${image} n'existe pas"
+                echo "The file ${image} doesn't exist"
             fi
         done
     }
 
     add_folder () {
+        # Add image folder in project
         for folder in "${@:3}" # Iterate on images but not command args
         do
             if test -d $folder;then
@@ -123,16 +142,17 @@ images () {
                     if [[ " ${ACCEPT_EXTENSION[*]} " =~ " ${extension} " ]]; then
                         cp $file ./images
                     else
-                        echo "Le fichier ${file} n'est pas telecharge, il doit etre de type png ou jpg"
+                        echo "${file} can't be download, it sould be a png or jpg"
                     fi
                 done
             else
-                echo "${folder} n'est pas un dossier ou n'existe pas"
+                echo "${folder} is not a directory or doesn't exist"
             fi
         done
     }
 
     add_default () {
+        # Add default images to project
         url="https://raw.githubusercontent.com/malo2b/project_admin_sys_template/develop/images.zip"
         curl -LO -f $url && rm -rf images && unzip images.zip && rm images.zip || echo -e "${RED_COLOR}Error to get default images, check your internet connection:${NO_COLOR}"
     }
@@ -164,7 +184,7 @@ images () {
     fi
 }
 
-
+# CLI entry point
 case $1 in
 
     "-h" | "--help" | "")
