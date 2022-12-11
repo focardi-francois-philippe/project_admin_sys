@@ -33,12 +33,17 @@ verify_project_not_init() {
 }
 write_article()
 {
-    search_file="<!--{{limite}}-->"
+    search_file="<!--{{cards}}-->"
     img_article=$( tail -n 1 .gensite | cut -d ":" -f 2 )
     user_name=$( grep "{user_name}:" .gensite | cut -d ":" -f 2 )
     pseudonyme=$( grep "{pseudonyme}:" .gensite | cut -d ":" -f 2 )
-    card_article="<div class=\"column\">\n\n<div class=\"card\">\n<div class=\"card-image\">\n\n<figure class=\"image is-4by3\">\n\n<img src=\"images/$img_article\">\n\n </figure>\n </div>\n <div class=\"card-content\">\n <div class=\"media\">\n <div class=\"media-content\">\n <p class=\"title is-4\">\n$user_name</p>\n <p class=\"subtitle is-6\">\n$pseudonyme</p>\n </div>\n </div>\n <div class=\"content\">\n Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nec iaculis mauris. <br>\n </div>\n </div>\n </div>\n </div>\n <!--{{limite}}-->\n"
-    sed -i "s|$search_file|$card_article|g" index.html
+    card_article=$( cat cards.html)
+    card_article=${card_article/"{{user_name}}"/$user_name}
+    card_article=${card_article/"{{pseudonyme}}"/$pseudonyme}
+    card_article="${card_article/"{{image_article}}"/images/$img_article}"
+    card_article=${card_article//$'\n'/\\n}
+    #echo $card_article
+    sed -i "s|$search_file|$card_article|" index.html
 }
 
 init () {
@@ -84,11 +89,10 @@ init () {
         # Pull template
         curl https://raw.githubusercontent.com/malo2b/project_admin_sys_template/master/index.html >> $project_path/index.html
         curl https://raw.githubusercontent.com/malo2b/project_admin_sys_template/master/style.css >> $project_path/style.css
+        curl https://raw.githubusercontent.com/malo2b/project_admin_sys_template/master/cards.html >> $project_path/cards.html
         cd $project_path
         sed -i "s|{{user_name}}|$user_name|g" index.html
-        main_image=$( grep "{main_image}:" .gensite | cut -d ":" -f 2 )
-        sed -i "s|{{main_image}}|images/$main_image|g" index.html
-        
+
     }
     
     if [ $# -le 1 ]; # Not enouth params
@@ -194,8 +198,10 @@ images () {
 
                 if [ "$identifiant_html" != "main_image" ]; then
                     write_article
+                else
+                    main_image=$( grep "{main_image}:" .gensite | cut -d ":" -f 2 )
+                    sed -i "s|{{main_image}}|images/$main_image|g" index.html
                 fi
-                
             done < "$config_images_default"
         rm $config_images_default
     }
