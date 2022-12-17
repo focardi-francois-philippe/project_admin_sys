@@ -48,7 +48,7 @@ write_article()
 
 init () {
     # Function for init command
-    
+
     help () {
         echo -e "${GREEN_COLOR}gensite init:${NO_COLOR}";
         echo;
@@ -56,16 +56,16 @@ init () {
         echo -e "\t\t{path} : Optional (default path is current folder)";
         echo
     }
-    
+
     init_project () {
         # Main init project function
         verify_project_not_init
-        
+
         project_name=$2
         [[ -n $3 ]] && path="$3" || path="$(PWD)" # Affect default value to path if not specified
-        
+
         project_path="${path}/${project_name}"
-        
+
         echo "Initialising project here : $project_path"
         mkdir $project_path
         mkdir $project_path/images
@@ -77,24 +77,24 @@ init () {
         read -e -p "Enter Your Name [Default : Anonyme] : " user_name
         user_name="${user_name:=Anonyme}"
         echo "{user_name}:${user_name}" >> $project_path/.gensite
-        
+
         read -e -p "Enter Your Pseudonyme [Default : anonyme] : " pseudonyme
         pseudonyme="${pseudonyme:=anonyme}"
         echo "{pseudonyme}:${pseudonyme}" >> $project_path/.gensite
 
-        
-        
+
+
         echo -e "${BLUE_COLOR}Your project is init here 🎉 : ${project_path}${NO_COLOR}";
-        
+
         # Pull template
         curl https://raw.githubusercontent.com/malo2b/project_admin_sys_template/master/index.html >> $project_path/index.html
         curl https://raw.githubusercontent.com/malo2b/project_admin_sys_template/master/style.css >> $project_path/style.css
         curl https://raw.githubusercontent.com/malo2b/project_admin_sys_template/master/cards.html >> $project_path/cards.html
         cd $project_path
         sed -i "s|{{user_name}}|$user_name|g" index.html
-
+        
     }
-    
+
     if [ $# -le 1 ]; # Not enouth params
     then
         help;
@@ -105,25 +105,25 @@ init () {
         help;
     else
         case $2 in
-            
+
             "-h" | "--help")
                 help;
             ;;
-            
+
             *)
                 init_project $*;
             ;;
-            
+
         esac
     fi
-    
-    
+
+
 }
 
 images () {
     # Function for images command
     verify_project_context
-    
+
     help () {
         echo -e "${GREEN_COLOR}gensite images:${NO_COLOR}";
         echo;
@@ -133,7 +133,7 @@ images () {
         echo -e "\t-d, --default            Add default images.";
         echo;
     }
-    
+
     add () {
         # Add an image to project
         read -r compteur_article<.compteur_img
@@ -147,7 +147,7 @@ images () {
                     echo "{image_article_$compteur_article}:$filename">>.gensite
                     write_article
                     ((compteur_article+=1))
-                    
+
                 else
                     echo "${file} can't be download, it sould be a png or jpg"
                 fi
@@ -157,7 +157,7 @@ images () {
         done
         echo $compteur_article>.compteur_img
     }
-    
+
     add_folder () {
         # Add image folder in project
         read -r compteur_article<.compteur_img
@@ -182,7 +182,7 @@ images () {
         done
         echo $compteur_article>.compteur_img
     }
-    
+
     add_default () {
         # Add default images to project
         url="https://raw.githubusercontent.com/malo2b/project_admin_sys_template/master/images.zip"
@@ -205,7 +205,7 @@ images () {
             done < "$config_images_default"
         rm $config_images_default
     }
-    
+
     if [ $# -le 1 ]; # Not enouth params
     then
         help;
@@ -214,7 +214,7 @@ images () {
             "-h" | "--help")
                 help;
             ;;
-            
+
             "-a" | "--add")
                 add $*;
             ;;
@@ -224,32 +224,32 @@ images () {
             "-d" | "--default")
                 add_default;
             ;;
-            
+
             *)
                 help;
             ;;
-            
+
         esac
     fi
 }
 
 # CLI entry point
 case $1 in
-    
+
     "-h" | "--help" | "")
         help;
     ;;
-    
+
     "i" | "init")
         init $*;
     ;;
-    
+
     "img" | "image")
         images $*;
     ;;
-    
+
     *)
         echo -e "${RED_COLOR}The command $1 does not exist.${NO_COLOR}";
     ;;
-    
+
 esac
